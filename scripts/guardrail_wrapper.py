@@ -47,16 +47,35 @@ def wrap_prompt(original: str) -> str:
     return GUARDRAIL_INSTRUCTIONS.strip() + "\n\n" + original
 
 
+USAGE = """Usage: python scripts/guardrail_wrapper.py [prompt_file]
+
+Prints the prompt with guardrail instructions prepended. With no argument it
+reads from standard input.
+
+  python scripts/guardrail_wrapper.py my_prompt.txt > wrapped.txt
+"""
+
+
 def main(argv=None):
-    argv = argv or sys.argv[1:]
+    argv = sys.argv[1:] if argv is None else argv
+
+    if argv and argv[0] in ("-h", "--help"):
+        sys.stdout.write(USAGE)
+        return 0
+
     if not argv:
         data = sys.stdin.read()
     else:
-        data = Path(argv[0]).read_text(encoding='utf-8')
+        path = Path(argv[0])
+        if not path.exists():
+            # A missing file used to raise a raw traceback at the user.
+            sys.stderr.write(f"File not found: {path}\n\n{USAGE}")
+            return 2
+        data = path.read_text(encoding='utf-8')
 
-    wrapped = wrap_prompt(data)
-    sys.stdout.write(wrapped)
+    sys.stdout.write(wrap_prompt(data))
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

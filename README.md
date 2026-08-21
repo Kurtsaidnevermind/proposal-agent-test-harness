@@ -93,7 +93,7 @@ python demo.py --keep                                # ...and keep the generated
 python scripts/prepare_grading.py --regression       # A1 B1 C1 E1 F3 only
 python scripts/prepare_grading.py --tests B1 C1 F3   # subset
 python scripts/scan_outputs.py                       # advisory scan of outputs/
-python -m pytest -q                                  # harness self-tests
+python -m pytest -q                                  # harness self-tests + fixture guards
 ```
 
 Three helpers exist so you can check the agent's claims instead of trusting them:
@@ -123,6 +123,18 @@ non-deterministic, and single runs mislead.
    twice out of three runs is a real gap; once may be variance.
 
 Then the run-by-run detail.
+
+## If you change the test materials
+
+`tests/test_materials.py` checks that every deliberately planted error is still
+in the document that is meant to carry it. Editing a fixture to "fix" a typo or
+tidy a heading will break the test that depends on it, and the suite will tell
+you which one.
+
+When a guard fails, either put the fixture back, or update
+`materials/SEEDED_ERRORS_ANSWER_KEY.md` and `tests/grading_context.json` to match
+the new reality. Those two files are prose; only the fixture is real, and they
+drift apart silently without these checks.
 
 ## Sharing it with the team
 

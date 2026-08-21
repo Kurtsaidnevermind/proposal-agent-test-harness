@@ -71,3 +71,6 @@ Thumbs.db
 
 # demo run artifacts
 demo/_last_run/
+
+# generated grading prompts (rebuilt by prepare_grading.py every run)
+grading/*.md

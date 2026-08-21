@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DIMS = ["accuracy", "compliance", "voice_tone", "structure", "instruction_following"]
 
 
-def validate(grade: dict, test: dict, name: str) -> list[str]:
+def validate(grade: dict, name: str) -> list[str]:
     problems = []
     scores = grade.get("scores", {})
     for d in DIMS:
@@ -172,7 +172,7 @@ def main() -> int:
         except json.JSONDecodeError as exc:
             errors.append(f"{path.name}: invalid JSON ({exc})")
             continue
-        problems = validate(grade, test, path.name)
+        problems = validate(grade, path.name)
         if problems:
             errors.extend(problems)
             continue

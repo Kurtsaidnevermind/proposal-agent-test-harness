@@ -57,6 +57,7 @@ When asked to "grade the outputs" (or similar):
 ## Other tasks you may be asked to do
 
 - **Regression check after an agent change:** `python scripts/prepare_grading.py --regression`, grade, compile, then compare the new `results/scores.csv` against the previous version in git history and report per-test deltas.
+- **Change a test material:** run `python -m pytest -q tests/test_materials.py` afterwards. Those guards assert every seeded error is still present in the fixture that carries it. If one fails, restore the fixture or update `materials/SEEDED_ERRORS_ANSWER_KEY.md` and `tests/grading_context.json` together. Never delete the assertion to make it pass.
 - **Add a new test:** append to `tests/test_cases.json` following the existing schema. Keep IDs in category-letter + number format (A-F). If the test needs attachments, add them to `materials/`, list them in `materials/README.md`, and record any seeded errors in both `materials/SEEDED_ERRORS_ANSWER_KEY.md` and `tests/grading_context.json`.
 - **Help a stuck user:** run `python check_setup.py` and read its output. It covers the common failures (Python version, missing files, malformed JSON, misnamed outputs, grade files wrapped in code fences).
 - **Build the Copilot Studio Kit import spreadsheet:** when asked, generate an Excel/CSV from `tests/test_cases.json` matching the kit's current import template (check its docs for column names at that time).
