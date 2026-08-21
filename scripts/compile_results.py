@@ -10,6 +10,7 @@ Usage:
 """
 
 import csv
+import datetime
 import json
 import re
 import sys
@@ -57,6 +58,26 @@ def find_ungraded(outputs_dir, rows, tests) -> list[str]:
         if (m.group(1), int(m.group(2) or 1)) not in graded:
             missing.append(path.name)
     return missing
+
+
+def archive_scores(results_dir, rows) -> Path:
+    """Keep a dated copy of every compiled batch.
+
+    scores.csv is overwritten on each run. Teams working from a shared folder
+    have no version control to fall back on, so without this the previous
+    batch's numbers are simply gone and score trends cannot be compared.
+
+    Same-day recompiles overwrite that day's file rather than piling up.
+    """
+    history = results_dir / "history"
+    history.mkdir(exist_ok=True)
+    stamp = datetime.date.today().isoformat()
+    dest = history / f"scores_{stamp}.csv"
+    with dest.open("w", newline="", encoding="utf-8-sig") as fh:
+        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+    return dest
 
 
 def security_section(flags) -> list[str]:
@@ -216,6 +237,8 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(rows)
 
+    archived = archive_scores(results_dir, rows)
+
     passed_n = sum(1 for r in rows if r["pass"])
     flags = [r for r in rows if r["security_flag"]]
     ungraded = find_ungraded(ROOT / "outputs", rows, tests)
@@ -255,6 +278,8 @@ def main() -> int:
         print("Grade them, or the pass rate describes only part of your test run.")
     print()
     print(f"  {results_dir / 'scores.csv'}\n  {results_dir / 'report.md'}")
+    print(f"  {archived}")
+    print("  (dated copy, so this batch survives the next compile)")
     return 0
 
 

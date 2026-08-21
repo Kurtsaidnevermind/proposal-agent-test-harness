@@ -47,6 +47,21 @@ def warn(message, detail):
 # 1. Python version
 # --------------------------------------------------------------------------
 
+def check_version():
+    """Print the folder's version.
+
+    Teams that receive this as a shared folder rather than a git checkout have
+    no other way to tell two copies apart. Quote this when reporting a problem.
+    """
+    path = ROOT / "VERSION"
+    if not path.exists():
+        warn("No VERSION file found",
+             "This copy predates version stamping, or the file was deleted.\n"
+             "Ask the team lead for the current folder.")
+        return
+    say(OK, f"Harness version {path.read_text(encoding='utf-8').strip()}")
+
+
 def check_python():
     major, minor = sys.version_info[:2]
     if (major, minor) >= (3, 10):
@@ -388,6 +403,7 @@ def main() -> int:
     print(f"Project folder: {ROOT}")
     print()
 
+    check_version()
     check_python()
     check_layout()
     suite = check_test_cases()

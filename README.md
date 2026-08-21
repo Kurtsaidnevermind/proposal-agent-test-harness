@@ -155,7 +155,7 @@ instructions. `make_zip.py` includes it explicitly.
 
 This harness stays useful as your grading layer, and the test set transfers: ask
 your coding agent to generate the kit's Excel import spreadsheet from
-`tests/test_cases.json`. Keep committing `results/scores.csv` in the meantime so
+`tests/test_cases.json`. Keep the dated files in `results/history/` in the meantime so
 you have score history to compare against once kit-based runs begin.
 
 ## Repository layout

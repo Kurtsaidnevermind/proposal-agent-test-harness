@@ -26,6 +26,7 @@ ZIP_ROOT = "proposal-agent-test-harness"
 
 # Files and folders every recipient needs.
 INCLUDE_FILES = [
+    "VERSION",
     "AGENTS.md",
     "README.md",
     "GETTING_STARTED.md",
@@ -49,6 +50,7 @@ EMPTY_DIRS = ["outputs", "grading", "grades", "results"]
 
 # Required inside the zip; the build fails if any is absent.
 MUST_CONTAIN = [
+    "VERSION",
     "AGENTS.md",
     "README.md",
     "GETTING_STARTED.md",

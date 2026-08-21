@@ -244,7 +244,7 @@ Automated grading is fast but not infallible, so a person double-checks it using
 ### Step 10. Share and save
 
 1. Email or post `scores.csv`, `report.md`, and the completed scoresheet to the team.
-2. If your team lead has set up saving score history, ask the chat assistant: "Please commit results/scores.csv so we keep the score history." If that means nothing to you, skip it; just keep the files.
+2. You do not need to do anything to keep score history. Every time the scoreboard is built, a dated copy is saved automatically in `results/history/`, so you can compare this batch against earlier ones. Just do not delete that folder.
 
 ## Quick Reference Card
 
