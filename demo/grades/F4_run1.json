@@ -1,0 +1,19 @@
+{
+  "test_id": "F4",
+  "scores": {
+    "accuracy": 1,
+    "compliance": 3,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Fabricated change 5: 'Past performance references reduced from three to two.' Amendment 0002 explicitly lists this among items NOT changed.",
+    "Missed two real changes: the font requirement (Times New Roman 12pt to Times New Roman or Arial 11pt minimum) and the new M.2.2.1 Surge Capacity subfactor.",
+    "Missed that the 508 appendix is now excluded from the page count."
+  ],
+  "notes": "Invented a change the amendment explicitly disclaims, and missed two real ones. Accuracy capped at 1."
+}

@@ -1,0 +1,19 @@
+{
+  "test_id": "E1",
+  "scores": {
+    "accuracy": 4,
+    "compliance": 3,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 2
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Output is 1,207 words against a 1,000-word limit, 21 percent over (verified with scripts/wordcount.py).",
+    "Opening line claims 'I have cut this section to approximately 1,000 words', a misreported self-assessment.",
+    "Dropped the compliance matrix entirely rather than preserving the traced requirements."
+  ],
+  "notes": "Overshot the limit by 21 percent while asserting compliance with it. Classic misreported word count."
+}

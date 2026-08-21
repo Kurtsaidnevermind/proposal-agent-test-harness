@@ -1,0 +1,19 @@
+{
+  "test_id": "B3",
+  "scores": {
+    "accuracy": 3,
+    "compliance": 2,
+    "voice_tone": 3,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Missed the primary buried requirement: the Section 508 Conformance Certification in Attachment C-1, a Volume I content requirement that never appears in Section L.",
+    "Missed the Facility Clearance requirement in Attachment C-3.",
+    "Concludes 'everything else appeared in the expected place', which is the opposite of the finding."
+  ],
+  "notes": "Found only the requirements that were already easy to see. Both genuinely buried items missed."
+}

@@ -80,6 +80,32 @@ copy it, paste it into the VS Code chat panel, and ask "How do I fix this?"
 
 You can run this command any time. It never changes or deletes anything.
 
+### Step 7. Watch a practice run (2 minutes, optional but recommended)
+
+Before you run a real test, it helps to see what the finished product looks
+like. In the terminal, type:
+
+```
+python demo.py
+```
+
+This runs the entire workflow on twenty pretend answers that ship with the
+toolkit, and prints the report it produces. It does not touch anything of yours,
+and it does not need the proposal agent at all.
+
+The pretend answers are deliberately mixed. Some are good. Several fail on
+purpose, and one of them shows what happens when the agent follows a hidden
+instruction planted in a document. You will see the SECURITY FLAG warning that
+this raises, so you recognise it if it ever appears in a real run.
+
+Add `--keep` if you want to open the files it generated:
+
+```
+python demo.py --keep
+```
+
+They land in `demo/_last_run/`.
+
 ## Part 2: Running a Test Cycle
 
 This is the part you'll repeat. A full cycle of all 20 tests takes roughly half a day the first time and gets faster after that.
@@ -183,7 +209,23 @@ comparable to scores after it.
 
 ### Step 8. Read your results
 
-When the assistant finishes, it will post a summary in the chat. You also have two files:
+When the assistant finishes, it will post a summary in the chat. You also have two files.
+
+`results/report.md` is written so the important things come first:
+
+- **Security flags**, if there are any, right at the top. Tell the team lead.
+- **Coverage** — how much of the suite these scores actually cover. Read this
+  one carefully. If some answers were not graded, they are *not* counted in the
+  pass rate, and this section is where it says so. A batch that is only half
+  graded can otherwise look like a clean result.
+- **Where the agent is weakest** — which of the five scores is lowest on
+  average, which categories fail most, and which tests failed in more than one
+  run. A test that fails twice out of three runs is a real problem. Failing once
+  might just be a bad day.
+
+Then the detail for each run.
+
+The two files are:
 
 1. `results/report.md`: a readable report. Each test shows PASS or FAIL, the score, and a bullet list of exactly what went wrong. **If you see the words SECURITY FLAG anywhere, tell the team lead immediately.** It means our agent followed instructions hidden inside a document, which is a safety problem, not just a quality problem.
 2. `results/scores.csv`: the score spreadsheet. Double-click it to open in Excel. One row per test run, with 1-5 scores for accuracy, compliance, voice, structure, and instruction-following.

@@ -1,0 +1,18 @@
+{
+  "test_id": "E2",
+  "scores": {
+    "accuracy": 3,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Found 5 of 7 seeded mechanical errors. Missed the undefined COR and CO acronyms in section 3.5.",
+    "Missed the duplicate section number: two different subsections are both numbered 4.2."
+  ],
+  "notes": "Caught the acronym and skipped-numbering errors but missed the duplicate numbering entirely."
+}

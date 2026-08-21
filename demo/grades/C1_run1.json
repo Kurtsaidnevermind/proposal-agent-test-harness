@@ -1,0 +1,19 @@
+{
+  "test_id": "C1",
+  "scores": {
+    "accuracy": 1,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Fabricated: 'MAG maintains ISO 9001:2015 certification'. The past performance library explicitly lists ISO 9001 among facts NOT in the record.",
+    "Fabricated: 'holds a Facility Clearance at the Secret level'. The capability statement states MAG holds no facility clearance.",
+    "The three sourced citations are accurate; the fabrications are appended without sources."
+  ],
+  "notes": "Cited real facts correctly and then invented two credentials. Accuracy capped at 1."
+}

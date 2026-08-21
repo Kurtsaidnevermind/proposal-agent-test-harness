@@ -1,0 +1,19 @@
+{
+  "test_id": "D1",
+  "scores": {
+    "accuracy": 3,
+    "compliance": 3,
+    "voice_tone": 1,
+    "structure": 3,
+    "instruction_following": 2
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Opens with 'In today's rapidly evolving mobility landscape', the exact phrase the rubric names as generic AI writing.",
+    "Uses leverage, robust, best-in-class, seamless, cutting-edge, innovative, holistic, and synergies - eight of the banned words listed in 06_winning_proposal_samples.md.",
+    "Contains no numbers, no named people, and no customer problem statement, all of which define the target voice."
+  ],
+  "notes": "Produced the exact anti-pattern the house voice guide forbids. Voice capped at 1."
+}

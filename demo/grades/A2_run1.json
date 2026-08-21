@@ -1,0 +1,15 @@
+{
+  "test_id": "A2",
+  "scores": {
+    "accuracy": 5,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 5,
+    "instruction_following": 5
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [],
+  "notes": "States five assumptions explicitly and asks clarifying questions rather than inventing a solicitation."
+}

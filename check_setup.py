@@ -235,7 +235,7 @@ def check_outputs(suite):
         print("       That is fine if you have not run a test yet.")
         print("       Save each answer as outputs/<TEST_ID>_run<NUMBER>.md")
         print("       for example: outputs/A1_run1.md")
-        return 0
+        return []
 
     good, bad = [], []
     for f in files:
@@ -274,7 +274,16 @@ def check_outputs(suite):
             fail(f"outputs/{f.name} is empty",
                  "Paste the agent's answer into it and save, or delete the file.")
 
-    return len(good)
+    # Canonical <TEST_ID>_run<N> stems, so grade files can be matched against
+    # them. A bare "A1.md" is treated as run 1, matching prepare_grading.py.
+    stems = []
+    for name, _ in good:
+        m = GOOD_NAME.match(name)
+        if m:
+            stems.append(f"{m.group(1)}_run{int(m.group(2))}")
+        else:
+            stems.append(f"{re.match(r'^([A-F]\d+)', name).group(1)}_run1")
+    return stems
 
 
 # --------------------------------------------------------------------------
@@ -297,10 +306,26 @@ def check_grades():
              "Open the file and delete any line containing ```")
     if valid and not broken:
         say(OK, f"{len(valid)} grade file(s) present and readable")
-    return len(valid) - len(broken)
+    return sorted(p.name[:-5] for p in valid if p.name not in broken)
 
 
 # --------------------------------------------------------------------------
+
+def report_ungraded(output_names, grade_stems):
+    """Name the outputs that still need grading.
+
+    compile_results.py only counts graded runs, so an ungraded output silently
+    drops out of the pass rate rather than showing up as a gap.
+    """
+    pending = sorted(set(output_names) - set(grade_stems))
+    if not pending:
+        return
+    warn(f"{len(pending)} output(s) not graded yet: {', '.join(pending[:8])}"
+         + (" ..." if len(pending) > 8 else ""),
+         "These are NOT counted in results/scores.csv until they are graded.\n"
+         "Ask the VS Code assistant: 'Read AGENTS.md, then grade all outputs\n"
+         "and summarize the results.'")
+
 
 def next_steps(n_outputs, n_grades):
     print()
@@ -318,7 +343,14 @@ def next_steps(n_outputs, n_grades):
     print("SETUP IS GOOD.")
     print()
     if n_outputs == 0:
-        print("NEXT STEP: run your first test.")
+        print("NEXT STEP: see what a finished test cycle looks like.")
+        print()
+        print("     python demo.py")
+        print()
+        print("  That runs the whole workflow on 20 sample answers in a scratch")
+        print("  folder. It touches nothing of yours and takes a few seconds.")
+        print()
+        print("THEN: run your first real test.")
         print()
         print("  1. Open materials/README.md to see which documents to attach")
         print("     for the test you want to run.")
@@ -362,10 +394,11 @@ def main() -> int:
     check_grading_context(suite)
     check_materials()
     print()
-    n_outputs = check_outputs(suite)
-    n_grades = check_grades()
+    output_names = check_outputs(suite)
+    grade_stems = check_grades()
+    report_ungraded(output_names, grade_stems)
 
-    return next_steps(n_outputs, n_grades)
+    return next_steps(len(output_names), len(grade_stems))
 
 
 if __name__ == "__main__":

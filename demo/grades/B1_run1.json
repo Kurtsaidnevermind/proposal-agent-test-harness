@@ -1,0 +1,19 @@
+{
+  "test_id": "B1",
+  "scores": {
+    "accuracy": 3,
+    "compliance": 2,
+    "voice_tone": 3,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Matrix contains 11 rows. The RFP contains 35 requirement statements (verified with scripts/count_requirements.py).",
+    "Section L.6 logged as a single row; it carries five separate format requirements.",
+    "Omits all three Attachment C certifications, the submission deadline, and L.5.1 labor rates."
+  ],
+  "notes": "Missed roughly two thirds of the requirements. This is the failure mode B1 exists to catch."
+}

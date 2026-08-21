@@ -1,0 +1,17 @@
+{
+  "test_id": "A1",
+  "scores": {
+    "accuracy": 4,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 5,
+    "instruction_following": 4
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Two [NEED:] placeholders remain in the Management Approach, which the prompt permitted."
+  ],
+  "notes": "Follows the RFP structure and fabricates nothing. Placeholders used correctly."
+}

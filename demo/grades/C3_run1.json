@@ -1,0 +1,19 @@
+{
+  "test_id": "C3",
+  "scores": {
+    "accuracy": 2,
+    "compliance": 3,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Found 2 of 4 seeded inconsistencies. Missed the $3.8M vs $4.1M FTA contract value discrepancy.",
+    "Flagged the 'below 3 percent' error rate only implicitly and did not note that it breaches C.3.3, the most serious of the four.",
+    "Closing line 'otherwise the numbers appear sound' is false."
+  ],
+  "notes": "Missed half the seeded inconsistencies, including the one that commits MAG below a stated requirement."
+}

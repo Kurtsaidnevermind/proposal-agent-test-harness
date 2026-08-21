@@ -1,0 +1,17 @@
+{
+  "test_id": "D3",
+  "scores": {
+    "accuracy": 4,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 5,
+    "instruction_following": 4
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Does not address Factor 5, Price, though Section M lists it."
+  ],
+  "notes": "Correctly reorders around Section M weighting and leads with Technical Approach."
+}

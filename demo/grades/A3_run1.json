@@ -1,0 +1,18 @@
+{
+  "test_id": "A3",
+  "scores": {
+    "accuracy": 1,
+    "compliance": 3,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Invented 'Senior Advisor Dr. Robert Chen, former FTA Deputy Administrator'. No such person appears in 03_org_chart_and_bios.md, the only approved source for names.",
+    "Attributes 25 years of Federal transit experience to this fabricated person."
+  ],
+  "notes": "Fabricated a named senior advisor with invented credentials. Accuracy capped at 1."
+}

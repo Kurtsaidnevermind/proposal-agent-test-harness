@@ -222,3 +222,116 @@ def test_grading_context_is_valid_if_present(suite):
             f"grading_context.json mentions {key!r}, which is not a test ID in "
             "tests/test_cases.json. Check for a typo."
         )
+
+
+# --- report completeness: the silent-incompleteness guards -------------------
+
+def test_find_ungraded_reports_outputs_with_no_grade(compile_results, tmp_path):
+    """A partly-graded batch must not report a healthy pass rate in silence.
+
+    This was a real defect: 20 outputs with 3 grades printed "2/3 runs passed"
+    and never mentioned the 17 that were skipped.
+    """
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    for name in ["A1_run1.md", "A1_run2.md", "B1_run1.md", "C1_run1.md"]:
+        (outputs / name).write_text("x", encoding="utf-8")
+
+    rows = [{"test_id": "A1", "run": 1}]
+    tests = {"A1": {}, "B1": {}, "C1": {}}
+    ungraded = compile_results.find_ungraded(outputs, rows, tests)
+
+    assert ungraded == ["A1_run2.md", "B1_run1.md", "C1_run1.md"]
+
+
+def test_find_ungraded_ignores_placeholders_and_bad_names(compile_results, tmp_path):
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    for name in ["README.txt", ".gitkeep", "notes.md", "Z9_run1.md"]:
+        (outputs / name).write_text("x", encoding="utf-8")
+    assert compile_results.find_ungraded(outputs, [], {"A1": {}}) == []
+
+
+def test_bare_output_name_counts_as_run_1(compile_results, tmp_path):
+    """prepare_grading.py treats A1.md as run 1, so coverage must agree."""
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    (outputs / "A1.md").write_text("x", encoding="utf-8")
+    assert compile_results.find_ungraded(outputs, [{"test_id": "A1", "run": 1}], {"A1": {}}) == []
+    assert compile_results.find_ungraded(outputs, [], {"A1": {}}) == ["A1.md"]
+
+
+def test_security_flags_are_rendered_before_anything_else(compile_results):
+    """AGENTS.md requires flags surfaced first; they used to land ~line 110."""
+    flags = [{"test_id": "F3", "run": 1, "name": "Instruction injection"}]
+    section = compile_results.security_section(flags)
+    assert section, "a flagged run produced no security section"
+    assert "SECURITY FLAGS" in section[0]
+    assert any("F3" in line for line in section)
+    assert compile_results.security_section([]) == []
+
+
+def test_patterns_section_names_the_weakest_dimension(compile_results):
+    rows = [
+        {"test_id": "A1", "run": 1, "category": "Baseline", "pass": True,
+         "accuracy": 5, "compliance": 5, "voice_tone": 1, "structure": 5,
+         "instruction_following": 5},
+        {"test_id": "A2", "run": 1, "category": "Baseline", "pass": False,
+         "accuracy": 5, "compliance": 5, "voice_tone": 1, "structure": 5,
+         "instruction_following": 5},
+    ]
+    text = "\n".join(compile_results.patterns_section(rows, {"A1": {}, "A2": {}}))
+    assert "voice_tone" in text
+    assert "Weakest dimension: **voice_tone**" in text
+
+
+def test_repeat_failures_are_distinguished_from_one_off_noise(compile_results):
+    """2 of 3 failing runs is a real gap; 1 of 3 may be variance."""
+    def row(tid, run, passed):
+        return {"test_id": tid, "run": run, "category": "X", "pass": passed,
+                **{d: 3 for d in DIMS}}
+
+    repeated = [row("C1", 1, False), row("C1", 2, True), row("C1", 3, False)]
+    text = "\n".join(compile_results.patterns_section(repeated, {"C1": {}}))
+    assert "C1 (2 of 3 runs)" in text
+
+    one_off = [row("C1", 1, False), row("C1", 2, True), row("C1", 3, True)]
+    text = "\n".join(compile_results.patterns_section(one_off, {"C1": {}}))
+    assert "more than one run" not in text
+
+
+# --- the demo data itself has to stay usable --------------------------------
+
+def test_demo_data_is_present_and_paired():
+    demo = ROOT / "demo"
+    if not demo.exists():
+        pytest.skip("demo/ not present")
+    outputs = {p.stem for p in (demo / "outputs").glob("*.md")}
+    grades = {p.stem for p in (demo / "grades").glob("*.json")}
+    assert outputs, "demo/outputs is empty"
+    assert outputs == grades, (
+        "every demo output needs a matching grade so demo.py can run offline; "
+        f"unpaired: {outputs ^ grades}"
+    )
+
+
+def test_demo_grades_pass_the_real_validator(compile_results):
+    demo = ROOT / "demo" / "grades"
+    if not demo.exists():
+        pytest.skip("demo/ not present")
+    for path in sorted(demo.glob("*.json")):
+        grade = json.loads(path.read_text(encoding="utf-8"))
+        problems = compile_results.validate(grade, {}, path.name)
+        assert not problems, f"demo grade {path.name} is invalid: {problems}"
+
+
+def test_demo_covers_the_security_flag_path():
+    """The demo must exercise the flag path, or it proves nothing about it."""
+    demo = ROOT / "demo" / "grades"
+    if not demo.exists():
+        pytest.skip("demo/ not present")
+    flagged = [
+        p.name for p in demo.glob("*.json")
+        if json.loads(p.read_text(encoding="utf-8")).get("security_flag")
+    ]
+    assert flagged, "no demo grade raises security_flag; the flag path is untested"

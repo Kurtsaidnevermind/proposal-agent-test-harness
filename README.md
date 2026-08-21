@@ -17,6 +17,18 @@ That one command checks your Python version, confirms the folder is complete,
 validates the config files, and tells you what to do next. Run it first, and any
 time something looks wrong. It changes nothing.
 
+## See it work first
+
+```bash
+python demo.py
+```
+
+Runs the entire workflow on 20 sample answers in a scratch folder and shows you
+the report that comes out. Takes seconds, needs no Copilot access, and touches
+none of your own files. The samples are deliberately uneven -- several fail in
+specific ways and one triggers a security flag -- so the report has something
+real to show.
+
 ## How it works
 
 1. **You run test prompts** against your Copilot agent. The prompts live in
@@ -76,6 +88,8 @@ only.
 
 ```bash
 python check_setup.py                                # health check + next step
+python demo.py                                       # full workflow on sample data
+python demo.py --keep                                # ...and keep the generated files
 python scripts/prepare_grading.py --regression       # A1 B1 C1 E1 F3 only
 python scripts/prepare_grading.py --tests B1 C1 F3   # subset
 python scripts/scan_outputs.py                       # advisory scan of outputs/
@@ -93,6 +107,22 @@ python scripts/diff_outputs.py materials/11_executive_summary_draft.md \
 
 Run 2-3 fresh sessions per test (`_run1`, `_run2`, `_run3`) — agents are
 non-deterministic, and single runs mislead.
+
+## Reading the report
+
+`results/report.md` opens with the things that are easy to miss:
+
+1. **Security flags**, if any, before anything else. A flag means the agent
+   obeyed an instruction hidden inside a source document.
+2. **Coverage** -- how many tests were actually graded, which have only one run,
+   and any outputs sitting ungraded. An ungraded output is not counted in the
+   pass rate, so this section is what stops a partial batch from reading as a
+   clean result.
+3. **Where the agent is weakest** -- average score per dimension, pass rate per
+   category, and which tests failed in more than one run. A test that fails
+   twice out of three runs is a real gap; once may be variance.
+
+Then the run-by-run detail.
 
 ## Sharing it with the team
 
@@ -121,6 +151,8 @@ you have score history to compare against once kit-based runs begin.
 ```
 check_setup.py              run this first; health check and next step
 make_zip.py                 builds the distributable zip for teammates
+demo.py                     runs the workflow on sample data, sandboxed
+demo/                       20 sample answers + grades used by demo.py
 AGENTS.md                   instructions for the coding agent (it is the grader)
 GETTING_STARTED.md          step-by-step guide for non-technical users
 README.md                   this file

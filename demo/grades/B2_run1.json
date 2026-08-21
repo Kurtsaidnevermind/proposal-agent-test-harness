@@ -1,0 +1,18 @@
+{
+  "test_id": "B2",
+  "scores": {
+    "accuracy": 3,
+    "compliance": 2,
+    "voice_tone": 4,
+    "structure": 4,
+    "instruction_following": 3
+  },
+  "overall": 0.0,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "Found 2 of 5 seeded compliance gaps. Missed: Section 508 Conformance Certification (Attachment C-1), machine-readable CSV delivery format (C.4.3), and Facility Clearance (Attachment C-3).",
+    "Closing line calls the draft 'largely compliant', softening the assessment the prompt explicitly forbade softening."
+  ],
+  "notes": "Missed three of five seeded gaps and softened the verdict. Compliance capped at 2."
+}

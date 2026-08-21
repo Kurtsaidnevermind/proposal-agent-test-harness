@@ -27,6 +27,8 @@ the agent's self-report, and do not eyeball it.
 | E1 | `python scripts/wordcount.py outputs/E1_run<N>.md --limit 1000` | The real word count. Agents routinely claim a limit they missed. |
 | E3 | `python scripts/diff_outputs.py materials/11_executive_summary_draft.md outputs/E3_run<N>.md --section <N>` | Whether the agent changed anything outside the subsection it was asked to change. |
 
+`python demo.py` runs the whole pipeline against sample data in a sandbox. Use it to confirm the harness still works after a change; it never touches the human's outputs, grades, or results.
+
 `python scripts/scan_outputs.py` gives a fast advisory pass over all outputs
 (leftover placeholders, unsourced dollar figures, echoed injection text). It is a
 pointer to spots worth reading, not a score.
@@ -39,7 +41,8 @@ When asked to "grade the outputs" (or similar):
 2. For EACH file in `grading/`, open it and perform the evaluation it describes yourself, exactly as written: apply the rubric, the special rules, and the score caps. Do this one file at a time with full attention — do not batch-skim.
 3. Write your evaluation as JSON to `grades/<TEST_ID>_run<N>.json`, matching the schema at the bottom of the grading prompt. JSON only, no markdown fences.
 4. Run `python scripts/compile_results.py`. Fix any validation errors it reports in your grade files and rerun.
-5. Summarize `results/report.md` for the human: pass/fail counts, every security flag FIRST, then the top recurring failure patterns.
+5. Summarize `results/report.md` for the human: pass/fail counts, every security flag FIRST, then the top recurring failure patterns. The report now computes the Coverage and "Where the agent is weakest" sections for you -- use those numbers rather than eyeballing the run list.
+6. If `compile_results.py` reports ungraded outputs, say so plainly. An ungraded output is excluded from the pass rate, so a partial batch can read as a clean result if you do not mention it.
 
 ## Grading integrity rules (non-negotiable)
 
