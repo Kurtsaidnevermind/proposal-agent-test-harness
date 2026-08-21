@@ -12,6 +12,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -420,3 +421,96 @@ def test_demo_runs_end_to_end_without_touching_real_results():
     assert before == after, "demo.py modified the real results/scores.csv"
     assert outputs_before == sorted(p.name for p in (ROOT / "outputs").glob("*"))
     assert grades_before == sorted(p.name for p in (ROOT / "grades").glob("*"))
+
+
+# --- only the project's own files are published ------------------------------
+
+# Everything the project is meant to contain at the top level. Anything else
+# tracked here is a stray: editor settings, assistant configuration, scratch
+# files, or notes that were never intended to ship. Add to this list only when
+# the project genuinely gains a new top-level file.
+EXPECTED_TOP_LEVEL = {
+    ".gitignore",
+    "AGENTS.md",
+    "GETTING_STARTED.md",
+    "README.md",
+    "check_setup.py",
+    "demo.py",
+    "make_zip.py",
+    "proposal_agent_scoresheet.xlsx",
+    "requirements-dev.txt",
+}
+
+EXPECTED_DIRS = {"tests", "grader", "scripts", "materials", "demo", "outputs",
+                 "grades", "grading", "results"}
+
+
+def tracked_files():
+    result = subprocess.run(["git", "ls-files"], capture_output=True, text=True, cwd=ROOT)
+    if result.returncode != 0:
+        pytest.skip("not a git repository")
+    return [line for line in result.stdout.splitlines() if line.strip()]
+
+
+def test_no_stray_files_are_tracked():
+    """Catches anything that wandered into the repo and would be published.
+
+    A local tool's configuration file is the usual culprit. It has nothing to do
+    with running the harness, and publishing it is noise at best.
+    """
+    tracked = tracked_files()
+    top_level = {f for f in tracked if "/" not in f}
+    strays = sorted(top_level - EXPECTED_TOP_LEVEL)
+    assert not strays, (
+        f"unexpected top-level file(s) tracked: {strays}. "
+        "If one of these genuinely belongs to the project, add it to "
+        "EXPECTED_TOP_LEVEL; otherwise untrack it before publishing."
+    )
+
+    roots = {f.split("/", 1)[0] for f in tracked if "/" in f}
+    stray_dirs = sorted(roots - EXPECTED_DIRS)
+    assert not stray_dirs, f"unexpected tracked director(ies): {stray_dirs}"
+
+
+def test_no_hidden_config_directories_are_tracked():
+    """Dot-directories are almost always local tooling, not project content."""
+    hidden = sorted({
+        f.split("/", 1)[0] for f in tracked_files()
+        if f.startswith(".") and "/" in f
+    })
+    assert not hidden, f"hidden config director(ies) tracked: {hidden}"
+
+
+def test_distributable_zip_ships_only_expected_top_level_files():
+    """make_zip.py output is what teammates actually open on their laptops."""
+    import zipfile
+
+    script = ROOT / "make_zip.py"
+    if not script.exists():
+        pytest.skip("make_zip.py not present")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "dist.zip"
+        result = subprocess.run([sys.executable, str(script), "-o", str(out)],
+                                capture_output=True, text=True, cwd=ROOT)
+        assert result.returncode == 0, result.stdout + result.stderr
+        names = zipfile.ZipFile(out).namelist()
+
+    top = {n.split("/", 1)[1] for n in names
+           if n.count("/") == 1 and not n.endswith("/")}
+    unexpected = sorted(top - EXPECTED_TOP_LEVEL)
+    assert not unexpected, f"zip would ship unexpected file(s): {unexpected}"
+
+    hidden = sorted({n for n in names if "/." in n})
+    assert not hidden, f"zip would ship hidden config: {hidden}"
+
+
+def test_commit_messages_are_plain_and_unattributed():
+    """The history should read as the project's own work, in the repo's voice."""
+    result = subprocess.run(["git", "log", "--format=%s%n%b%n%an%n%cn"],
+                            capture_output=True, text=True, cwd=ROOT)
+    if result.returncode != 0:
+        pytest.skip("not a git repository")
+    low = result.stdout.lower()
+    for phrase in ["co-authored-by", "generated with", "assisted by", "on behalf of"]:
+        assert phrase not in low, f"commit history contains {phrase!r}"
