@@ -7,8 +7,11 @@ if (Test-Path requirements-dev.txt) {
     py -3 -m pip install -r requirements-dev.txt
 }
 
+py -3 check_setup.py
+
 py -3 -m pytest -q
 
+# Both exit non-zero when there is nothing to do yet, which is normal.
 py -3 scripts/prepare_grading.py
 py -3 scripts/compile_results.py
 

@@ -13,6 +13,11 @@ this script.
 import sys
 from pathlib import Path
 
+# Allow running this file directly (python scripts/run_with_guardrails.py ...)
+# as well as importing it as a module. Without this, Python puts scripts/ on
+# sys.path instead of the repo root and the import below fails.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from scripts.guardrail_wrapper import wrap_prompt
 
 

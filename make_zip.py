@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Build the distributable zip that teammates extract on their own laptops.
+
+GETTING_STARTED.md tells new users they will receive
+`proposal-agent-test-harness.zip`. This builds that file, and checks it is
+complete before handing it over.
+
+    python make_zip.py
+
+By default the zip contains everything needed to run, with a clean slate: no
+saved outputs, no grades, no compiled results. Add --with-results to include the
+current score history instead.
+
+Why not just share a git clone? `AGENTS.md` is excluded by many developers'
+global gitignore rules, and without it the harness has no grading instructions.
+This script includes it explicitly and fails loudly if it is missing.
+"""
+
+import argparse
+import sys
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+ZIP_ROOT = "proposal-agent-test-harness"
+
+# Files and folders every recipient needs.
+INCLUDE_FILES = [
+    "AGENTS.md",
+    "README.md",
+    "GETTING_STARTED.md",
+    "check_setup.py",
+    "requirements-dev.txt",
+    "proposal_agent_scoresheet.xlsx",
+]
+INCLUDE_DIRS = ["tests", "grader", "materials", "scripts"]
+
+# Never ship these.
+EXCLUDE_PARTS = {
+    ".git", ".venv", "__pycache__", ".pytest_cache", ".vscode",
+    "node_modules", ".idea",
+}
+EXCLUDE_SUFFIXES = {".pyc", ".pyo", ".pyd"}
+
+# Empty working folders the user fills in as they go.
+EMPTY_DIRS = ["outputs", "grading", "grades", "results"]
+
+# Required inside the zip; the build fails if any is absent.
+MUST_CONTAIN = [
+    "AGENTS.md",
+    "README.md",
+    "GETTING_STARTED.md",
+    "check_setup.py",
+    "tests/test_cases.json",
+    "tests/grading_context.json",
+    "grader/grading_prompt.md",
+    "materials/README.md",
+    "materials/01_RFP_DOT-ORM-2026-R-0147.md",
+    "scripts/prepare_grading.py",
+    "scripts/compile_results.py",
+]
+
+
+def should_skip(path: Path) -> bool:
+    if any(part in EXCLUDE_PARTS for part in path.parts):
+        return True
+    return path.suffix in EXCLUDE_SUFFIXES
+
+
+def collect(with_results: bool) -> list[tuple[Path, str]]:
+    """Return (absolute source path, path inside the zip) pairs."""
+    items = []
+
+    for name in INCLUDE_FILES:
+        src = ROOT / name
+        if src.exists():
+            items.append((src, f"{ZIP_ROOT}/{name}"))
+
+    for dirname in INCLUDE_DIRS:
+        base = ROOT / dirname
+        if not base.exists():
+            continue
+        for src in sorted(base.rglob("*")):
+            if src.is_file() and not should_skip(src.relative_to(ROOT)):
+                items.append((src, f"{ZIP_ROOT}/{src.relative_to(ROOT).as_posix()}"))
+
+    if with_results:
+        for dirname in ["outputs", "grades", "results"]:
+            base = ROOT / dirname
+            if not base.exists():
+                continue
+            for src in sorted(base.rglob("*")):
+                if src.is_file() and not should_skip(src.relative_to(ROOT)):
+                    items.append((src, f"{ZIP_ROOT}/{src.relative_to(ROOT).as_posix()}"))
+
+    return items
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--with-results", action="store_true",
+                    help="include current outputs, grades, and results")
+    ap.add_argument("-o", "--output", default=f"{ZIP_ROOT}.zip",
+                    help="zip file to write")
+    args = ap.parse_args()
+
+    items = collect(args.with_results)
+    names = {arc.split("/", 1)[1] for _, arc in items}
+
+    missing = [m for m in MUST_CONTAIN if m not in names]
+    if missing:
+        print("Cannot build the zip. These required files are missing:")
+        for m in missing:
+            print(f"  - {m}")
+        print()
+        if "AGENTS.md" in missing:
+            print("AGENTS.md is the grading instruction file. It is excluded by many")
+            print("global gitignore rules, so a git clone may not have it. Get a copy")
+            print("from whoever built the harness before rebuilding the zip.")
+        return 1
+
+    out = Path(args.output)
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
+        for src, arc in items:
+            zf.write(src, arc)
+        if not args.with_results:
+            for d in EMPTY_DIRS:
+                # A README keeps the folder present after extraction and tells the
+                # user what belongs in it.
+                zf.writestr(
+                    f"{ZIP_ROOT}/{d}/README.txt",
+                    {
+                        "outputs": "Save each proposal-agent answer here as <TEST_ID>_run<N>.md\n"
+                                   "for example A1_run1.md. Run 'python check_setup.py' to\n"
+                                   "confirm your file names are correct.\n",
+                        "grading": "Generated automatically. Do not edit by hand.\n",
+                        "grades": "The grading assistant writes one JSON per run here.\n",
+                        "results": "scores.csv and report.md are written here.\n",
+                    }[d],
+                )
+        else:
+            for d in EMPTY_DIRS:
+                if not any(a.startswith(f"{ZIP_ROOT}/{d}/") for _, a in items):
+                    zf.writestr(f"{ZIP_ROOT}/{d}/README.txt", "Working folder.\n")
+
+    size_kb = out.stat().st_size / 1024
+    print(f"Built {out} ({size_kb:.0f} KB, {len(items)} files)")
+    print()
+    print("Contents check:")
+    for m in MUST_CONTAIN:
+        print(f"  [ OK ] {m}")
+    print()
+    if args.with_results:
+        print("Includes current outputs, grades, and results.")
+    else:
+        print("Clean slate: no outputs, grades, or results included.")
+    print()
+    print("Send this file to teammates. They extract it and follow GETTING_STARTED.md.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

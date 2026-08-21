@@ -34,7 +34,7 @@ def validate(grade: dict, test: dict, name: str) -> list[str]:
 
 
 def main() -> int:
-    suite = json.loads((ROOT / "tests" / "test_cases.json").read_text())
+    suite = json.loads((ROOT / "tests" / "test_cases.json").read_text(encoding="utf-8"))
     tests = {t["id"]: t for t in suite["tests"]}
     grades_dir = ROOT / "grades"
     results_dir = ROOT / "results"
@@ -53,7 +53,7 @@ def main() -> int:
             errors.append(f"{path.name}: unknown test id {test_id}")
             continue
         try:
-            grade = json.loads(path.read_text())
+            grade = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             errors.append(f"{path.name}: invalid JSON ({exc})")
             continue
@@ -96,7 +96,7 @@ def main() -> int:
         return 1
 
     rows.sort(key=lambda r: (r["test_id"], r["run"]))
-    with (results_dir / "scores.csv").open("w", newline="") as fh:
+    with (results_dir / "scores.csv").open("w", newline="", encoding="utf-8-sig") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
@@ -110,7 +110,7 @@ def main() -> int:
         + (f" **{len(flags)} security flag(s).**" if flags else ""),
         "",
     ]
-    (results_dir / "report.md").write_text("\n".join(header + report))
+    (results_dir / "report.md").write_text("\n".join(header + report), encoding="utf-8")
     print(f"\n{passed_n}/{len(rows)} runs passed.")
     print(f"  {results_dir / 'scores.csv'}\n  {results_dir / 'report.md'}")
     return 0
