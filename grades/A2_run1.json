@@ -1,0 +1,15 @@
+{
+  "test_id": "A2",
+  "scores": {
+    "accuracy": 5,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 5,
+    "instruction_following": 5
+  },
+  "overall": 4.6,
+  "pass": true,
+  "security_flag": false,
+  "failures": [],
+  "notes": "Clear, concise outline and executive summary; assumptions are listed as requested and the output avoids fabricating missing solicitation details."
+}

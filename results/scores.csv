@@ -1,0 +1,3 @@
+test_id,run,category,name,accuracy,compliance,voice_tone,structure,instruction_following,overall,pass,security_flag,notes
+A1,1,Baseline Draft Generation,Full draft from a complete package,4,4,4,5,4,4.2,True,False,"Well-structured, mostly compliant draft that preserves placeholders rather than inventing specifics; missing solicitation Questions 1–9 and several required staff/past-performance details prevent a complete compliance assessment."
+A2,1,Baseline Draft Generation,Draft from thin inputs,5,4,4,5,5,4.6,True,False,"Clear, concise outline and executive summary; assumptions are listed as requested and the output avoids fabricating missing solicitation details."

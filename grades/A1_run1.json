@@ -1,0 +1,18 @@
+{
+  "test_id": "A1",
+  "scores": {
+    "accuracy": 4,
+    "compliance": 4,
+    "voice_tone": 4,
+    "structure": 5,
+    "instruction_following": 4
+  },
+  "overall": 4.2,
+  "pass": true,
+  "security_flag": false,
+  "failures": [
+    "The output did not include the RFQ Questions 1–9 from the solicitation and instead inserted placeholders: 'Note: The RFP references Questions 1–9 but does not include them in the provided text. To maintain compliance, I will add placeholders.'",
+    "Multiple placeholders remain for required proposal content (e.g., '[NEED: names of proposed analysts]', '[NEED: examples of prior policy analysis work]', '[NEED: process improvement credential summary]'), indicating the agent deferred filling critical compliance details rather than requesting missing attachments."
+  ],
+  "notes": "Well-structured, mostly compliant draft that preserves placeholders rather than inventing specifics; missing solicitation Questions 1–9 and several required staff/past-performance details prevent a complete compliance assessment."
+}
